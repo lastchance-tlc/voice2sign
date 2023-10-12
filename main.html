@@ -148,9 +148,9 @@ function displayLetterImages(text) {
     const letterImage = document.createElement("img");
     letterImage.className = "letter-image";
     if (text[i] === " ") {
-      letterImage.src = `normalassets/space.png`;
+      letterImage.src = `assets/space.png`;
     } else {
-      letterImage.src = `normalassets/${text[i].toLowerCase()}.png`;
+      letterImage.src = `assets/${text[i].toLowerCase()}.png`;
     }
     imageSequence.appendChild(letterImage);
 
