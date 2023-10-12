@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=1">
+<title>Voice to Text Converter</title>
+<style>
+  .letter-image {
+    width: 300px !important; /* Adjust the width to your preferred size */
+    height: 400px !important; /* Adjust the height to your preferred size */
+    margin: 0px 5px;
+    display: none;
+  }
+  :after,*:before{
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    box-sizing: border-box;
+  }
+  body{
+    font-family: arial;
+    font-size: 16px;
+    margin: 0;
+    background: linear-gradient(to right bottom, #d13cff, #031f6a);
+    color: #000;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between; /* Align the content vertically and space it at the bottom */
+    height: 100vh;
+    padding: 20px; /* Add padding to center content vertically and horizontally */
+    overflow: hidden;
+  }
+
+  .voice_to_text{
+    width: 100%;
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 20px; /* Add padding for better spacing */
+  }
+  .image_display {
+    width: 100%;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20;
+  }
+  h1{
+    color: #fff;
+    font-size: 32px;
+  }
+  #convert_text{
+    width: 80%;
+    height: 120px; /* Adjust the height to make it medium-sized */
+    border-radius: 10px;
+    resize: none;
+    padding: 10px;
+    font-size: 18px; /* Adjust the font size to make it medium-sized */
+    margin-bottom: 10px;
+  }
+  #image_sequence {
+    display: flex;
+    align-items: center;
+  }
+  .letter-image {
+    width: 50px;
+    height: 50px;
+    margin: 0 5px;
+    display: none;
+  }
+  button{
+    padding: 12px 20px;
+    background: #0ea4da;
+    border: 0;
+    color: #fff;
+    font-size: 18px;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-top: 30px;
+  }
+</style>
+</head>
+<body>
+  <div class="image_display">
+    <div id="image_sequence"></div>
+  </div>
+<div class="voice_to_text"> 
+  <center><textarea id="convert_text"></textarea></center>
+<center><button id="click_to_record">Start Recording</button></center>
+</div>
+
+<script>
+let currentImageIndex = 0; // Initialize the index to 0
+let isRecording = false;
+let recognition;
+let animationTimer;
+
+click_to_record.addEventListener('click', function() {
+  if (!isRecording) {
+    startRecording();
+  } else {
+    stopRecording();
+  }
+});
+
+function startRecording() {
+  // Clear the existing animation
+  clearAnimation();
+
+  currentImageIndex = 0;
+
+  recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+  recognition.lang = 'en-US';
+  recognition.continuous = true;
+  recognition.interimResults = true;
+  recognition.maxAlternatives = 3;
+
+  recognition.onresult = function(event) {
+    const transcript = Array.from(event.results)
+      .map(result => result[0])
+      .map(result => result.transcript)
+      .join('');
+
+    document.getElementById("convert_text").value = transcript;
+    console.log(transcript);
+    displayLetterImages(transcript);
+  };
+
+  recognition.start();
+  isRecording = true;
+  click_to_record.innerText = "Stop Recording";
+}
+
+function stopRecording() {
+  if (recognition) {
+    recognition.stop();
+  }
+  isRecording = false;
+  click_to_record.innerText = "Start Recording";
+}
+function displayLetterImages(text) {
+  const imageSequence = document.getElementById("image_sequence");
+  let startIndex = currentImageIndex;
+
+  for (let i = startIndex; i < text.length; i++) {
+    const letterImage = document.createElement("img");
+    letterImage.className = "letter-image";
+    if (text[i] === " ") {
+      letterImage.src = `normalassets/space.png`;
+    } else {
+      letterImage.src = `normalassets/${text[i].toLowerCase()}.png`;
+    }
+    imageSequence.appendChild(letterImage);
+
+    setTimeout(() => {
+      letterImage.style.display = "inline";
+      scrollToBottom(); // Call scrollToBottom after displaying the image
+    }, 500 * i);
+
+    setTimeout(() => {
+      letterImage.style.display = "none";
+    }, 500 * (i + 1));
+  }
+  currentImageIndex = text.length;
+}
+1
+function scrollToBottom() {
+  const textarea = document.getElementById("convert_text");
+  textarea.scrollTop = textarea.scrollHeight;
+}
+function clearAnimation() {
+  const imageSequence = document.getElementById("image_sequence");
+  imageSequence.innerHTML = "";
+}
+
+
+</script>
+</body>
+</html>
